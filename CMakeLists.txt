@@ -1,0 +1,28 @@
+cmake_minimum_required(VERSION 3.5)
+project(Renderer)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+set(HEADER_FILES
+    core/image/image.h
+    core/maths/maths.h
+    core/utils/utils.h
+    core/draw2d/draw2d.h
+    core/darray/darray.h
+    core/mesh/mesh.h
+    core/api.h
+    core/common.h
+)
+
+set(SOURCE_FILES
+    core/image/image.c
+    core/maths/maths.c    
+    core/utils/utils.c
+    core/draw2d/draw2d.c
+    core/mesh/mesh.c
+)
+
+set(SRC_CUR test/test_mesh.c)
+add_executable(Renderer ${HEADER_FILES} ${SRC_CUR}  
+                          ${SOURCE_FILES})
