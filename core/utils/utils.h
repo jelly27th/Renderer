@@ -7,5 +7,6 @@
 void swap_char(unsigned char *a, unsigned char *b);
 void swap_int(int *a, int *b);
 void error_check(const char *filename, int errno);
+int mapping_interval(int Omin, int Omax, int Nmin, int Nmax, float a);
 
 #endif

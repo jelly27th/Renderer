@@ -59,12 +59,11 @@ static void draw2d_point_utils(int x, int y, unsigned char *color, IMAGE *image)
 void draw2d_line(vec2_i p0, vec2_i p1, unsigned char *color, IMAGE *image) {
 
   // convert point
-  // vec2_i _p0 = point_create(p0.x - 1, p0.y - 1);
-  // vec2_i _p1 = point_create(p1.x - 1, p1.y - 1);
+  vec2_i _p0 = point_create(p0.x - 1, p0.y - 1);
+  vec2_i _p1 = point_create(p1.x - 1, p1.y - 1);
 
   // draw line
-  // draw2d_line_utils(_p0, _p1, color, image);
-  draw2d_line_utils(p0, p1, color, image);
+  draw2d_line_utils(_p0, _p1, color, image);
 }
 
 static void draw2d_line_utils(vec2_i p0, vec2_i p1, unsigned char *color, IMAGE *image) {

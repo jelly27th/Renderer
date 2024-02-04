@@ -20,10 +20,18 @@ int main(int argc, char **argv) {
     for (int j = 0; j < 3; j++) {
       vec3_f v0 = mesh->v[v_indices[j]];
       vec3_f v1 = mesh->v[v_indices[(j + 1) % 3]];
-      vec2_i point0 = point_create(((v0.x + 1.0) * width / 2.0), 
-                                   ((v0.y + 1.0) * height / 2.0));
-      vec2_i point1 = point_create(((v1.x + 1.0) * width / 2.0),
-                                   ((v1.y + 1.0) * height / 2.0));
+      // vec2_i point0 = point_create(((v0.x + 1.0) * width / 2.0),
+      //                              ((v0.y + 1.0) * height / 2.0));
+      // vec2_i point1 = point_create(((v1.x + 1.0) * width / 2.0),
+      //                              ((v1.y + 1.0) * height / 2.0));
+      // vec2_i point0 = point_create(((v0.x + 1.0) * (width - 1) / 2.0) + 1.0,
+      //                              ((v0.y + 1.0) * (height - 1) / 2.0) + 1.0);
+      // vec2_i point1 = point_create(((v1.x + 1.0) * (width - 1) / 2.0) + 1.0,
+      //                              ((v1.y + 1.0) * (height - 1) / 2.0) + 1.0);
+      vec2_i point0 = point_create(mapping_interval(-1, 1, 1, width, v0.x),
+                                   mapping_interval(-1, 1, 1, width, v0.y));
+      vec2_i point1 = point_create(mapping_interval(-1, 1, 1, width, v1.x),
+                                   mapping_interval(-1, 1, 1, width, v1.y));
       draw2d_line(point0, point1, red, image);
     } 
   }
