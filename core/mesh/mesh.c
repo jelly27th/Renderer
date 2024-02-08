@@ -32,22 +32,22 @@ static MESH* obj_load(const char* filename) {
         fgets(line, 256, fp); // read line
 
         if (0 == strncmp(line, "v ", 2)) {
-            vec3_f v;
+            vec3f v;
             sscanf(line, "v %f %f %f", &v.x, &v.y, &v.z);
             darray_push(mesh->v, v);
             mesh->v_size++;
         } else if (0 == strncmp(line, "vt", 2)) {
-            vec3_f vt;
+            vec3f vt;
             sscanf(line, "vt %f %f %f", &vt.x, &vt.y, &vt.z);
             darray_push(mesh->vt, vt);
             mesh->vt_size++;
         } else if (0 == strncmp(line, "vn", 2)) {
-            vec3_f vn;
+            vec3f vn;
             sscanf(line, "vn %f %f %f", &vn.x, &vn.y, &vn.z);
             darray_push(mesh->vn, vn);
             mesh->vn_size++;
         } else if (0 == strncmp(line, "f ", 2)) {
-            vec3_i v_indices, vt_indices, vn_indices;
+            vec3i v_indices, vt_indices, vn_indices;
             sscanf(line, "f %d/%d/%d %d/%d/%d %d/%d/%d",
                    &v_indices.x, &vt_indices.x, &vn_indices.x,
                    &v_indices.y, &vt_indices.y, &vn_indices.y,

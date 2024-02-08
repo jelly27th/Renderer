@@ -1,8 +1,10 @@
 #include "draw2d.h"
 
-static void swap_point(vec2_i *p0, vec2_i *p1);
+static void swap_point(vec2i *p0, vec2i *p1);
 static void draw2d_point_utils(int x, int y, unsigned char *color, IMAGE *image);
-static void draw2d_line_utils(vec2_i p0, vec2_i p1, unsigned char *color, IMAGE *image);
+static void draw2d_line_utils(vec2i p0, vec2i p1, unsigned char *color, IMAGE *image);
+static void draw2d_triangle_raster_utils(vec2i p0, vec2i p1, vec2i p2,
+                                         unsigned char *color, IMAGE *image);
 
 /**
  * @brief write a pixel(3 or 4 channels) to image(matrix).
@@ -16,8 +18,7 @@ static void draw2d_line_utils(vec2_i p0, vec2_i p1, unsigned char *color, IMAGE 
  * @date 2024-01-03
  * @copyright Copyright (c) 2024
  */
-void draw2d_point(vec2_i p0, unsigned char *color, IMAGE *image) {
-
+void draw2d_point(vec2i p0, unsigned char *color, IMAGE *image) {
   // convert point 
   int x = p0.x - 1;
   int y = p0.y - 1;
@@ -56,17 +57,17 @@ static void draw2d_point_utils(int x, int y, unsigned char *color, IMAGE *image)
  * @date 2024-01-06
  * @copyright Copyright (c) 2024
  */
-void draw2d_line(vec2_i p0, vec2_i p1, unsigned char *color, IMAGE *image) {
+void draw2d_line(vec2i p0, vec2i p1, unsigned char *color, IMAGE *image) {
 
   // convert point
-  vec2_i _p0 = point_create(p0.x - 1, p0.y - 1);
-  vec2_i _p1 = point_create(p1.x - 1, p1.y - 1);
+  vec2i _p0 = vec2i_new(p0.x - 1, p0.y - 1);
+  vec2i _p1 = vec2i_new(p1.x - 1, p1.y - 1);
 
   // draw line
   draw2d_line_utils(_p0, _p1, color, image);
 }
 
-static void draw2d_line_utils(vec2_i p0, vec2_i p1, unsigned char *color, IMAGE *image) {
+static void draw2d_line_utils(vec2i p0, vec2i p1, unsigned char *color, IMAGE *image) {
 
   int x, y;
 
@@ -129,7 +130,61 @@ static void draw2d_line_utils(vec2_i p0, vec2_i p1, unsigned char *color, IMAGE 
 
 }
 
-static void swap_point(vec2_i *p0, vec2_i *p1) {
+static void swap_point(vec2i *p0, vec2i *p1) {
   swap_int(&p0->x, &p1->x);
   swap_int(&p0->y, &p1->y);
+}
+
+/**
+ * @brief draw raster triangles to image.
+ *        for more information see
+ *        https://github.com/ssloy/tinyrenderer/wiki/Lesson-2:-Triangle-rasterization-and-back-face-culling
+ *        https://zhuanlan.zhihu.com/p/523501661
+ *
+ * @param p0 one of the triangles coordinates
+ * @param p1 one of the triangles coordinates
+ * @param p2 one of the triangles coordinates
+ * @param color
+ * @param image
+ * @file draw2d.c
+ * @version 0.1
+ * @author Jelly (wugd827@163.com)
+ * @date 2024-02-07
+ * @copyright Copyright (c) 2024
+ */
+void draw2d_triangle_raster(vec2i p0, vec2i p1, vec2i p2,
+                            unsigned char *color, IMAGE *image) {
+  // convert point
+  vec2i _p0 = vec2i_new(p0.x - 1, p0.y - 1);
+  vec2i _p1 = vec2i_new(p1.x - 1, p1.y - 1);
+  vec2i _p2 = vec2i_new(p2.x - 1, p2.y - 1);
+  // draw raster triangles
+  draw2d_triangle_raster_utils(_p0, _p1, _p2, color, image);
+}
+
+static void draw2d_triangle_raster_utils(vec2i p0, vec2i p1, vec2i p2,
+                                         unsigned char *color, IMAGE *image) {
+  // find bounding box AABB（Axis-Aligned Bounding Boxes)
+  int x[3] = {p0.x, p1.x, p2.x};
+  int y[3] = {p0.y, p1.y, p2.y};
+  vec2i AABB_box_min, AABB_box_max;
+
+  bubble_sort(x, 3);
+  bubble_sort(y, 3);
+  AABB_box_min.x = x[0]; AABB_box_max.x = x[2];
+  AABB_box_min.y = y[0]; AABB_box_max.y = y[2];
+
+  // raster triangles
+  for (int _x = AABB_box_min.x; _x < AABB_box_max.x; _x++) {
+    for (int _y = AABB_box_min.y; _y < AABB_box_max.y; _y++) {
+      vec2i p = {_x, _y};
+      vec3f barycoord = barycentric(p, p0, p1, p2);
+      // handling accuracy issues. 
+      // if `-0.1` is `0`, maybe some point from model will discard in rendering.
+      if (barycoord.x < -0.1 || barycoord.y < -0.1 || barycoord.z < -0.1) {
+        continue; 
+      }
+      draw2d_point_utils(p.x, p.y, color, image);
+    }
+  }
 }

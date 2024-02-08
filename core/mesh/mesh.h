@@ -7,22 +7,22 @@
 #include "../utils/utils.h"
 
 typedef struct {
-    vec3_f* v;
+    vec3f* v;
     int v_size;
 
-    vec3_f* vt;
+    vec3f* vt;
     int vt_size;
     
-    vec3_f* vn;
+    vec3f* vn;
     int vn_size;
     
-    vec3_i* v_indices;
+    vec3i* v_indices;
     int v_indices_size;
 
-    vec3_i* vn_indices;
+    vec3i* vn_indices;
     int vn_indices_size;
     
-    vec3_i* vt_indices;
+    vec3i* vt_indices;
     int vt_indices_size;
 
 }MESH;
