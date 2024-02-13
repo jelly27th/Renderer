@@ -1,7 +1,7 @@
 #include "mesh.h"
 
-static MESH* obj_load(const char* filename);
-static MESH* mesh_struct_init();
+static mesh_t* obj_load(const char* filename);
+static mesh_t* mesh_struct_new();
 
 /**
  * @brief load obj file and return mesh object
@@ -14,11 +14,11 @@ static MESH* mesh_struct_init();
  * @date 2024-01-20
  * @copyright Copyright (c) 2024
  */
-MESH* mesh_load(const char* filename) {
+mesh_t* mesh_load(const char* filename) {
     return obj_load(filename);
 }
 
-static MESH* obj_load(const char* filename) {
+static mesh_t* obj_load(const char* filename) {
     
     char line[256]; // buffer size
 
@@ -26,7 +26,7 @@ static MESH* obj_load(const char* filename) {
     if (fp == NULL) {
       error_check(filename, errno);
     }
-    MESH* mesh = mesh_struct_init();
+    mesh_t* mesh = mesh_struct_new();
     while(!feof(fp)) {
         
         fgets(line, 256, fp); // read line
@@ -66,8 +66,8 @@ static MESH* obj_load(const char* filename) {
     return mesh;
 }
 
-static MESH* mesh_struct_init() {
-    MESH* mesh = malloc(sizeof(MESH));
+static mesh_t* mesh_struct_new() {
+    mesh_t* mesh = malloc(sizeof(mesh_t));
     mesh->v = NULL;
     mesh->v_size = 0;
     mesh->vt = NULL;
@@ -84,7 +84,7 @@ static MESH* mesh_struct_init() {
     return mesh;
 }
 
-void mesh_free(MESH* mesh) {
+void mesh_free(mesh_t* mesh) {
 
     free(mesh->v);
     free(mesh->vt);

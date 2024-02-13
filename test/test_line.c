@@ -7,7 +7,7 @@ int main(int argc, char **argv) {
 
     int width = 1000;
     int height = 1000;
-    IMAGE* image = image_init(width, height, 3);
+    image_t* image = image_new(width, height, 3);
 
     /* 
     vec2_i point0 = point_create(13, 20);
@@ -26,9 +26,9 @@ int main(int argc, char **argv) {
     draw2d_line(point0, point1, red, image);
     */
 
-    vec2_i point0 = point_create(((-0.9 + 1.0) * width / 2.0),
+    vec2i point0 = vec2i_new(((-0.9 + 1.0) * width / 2.0),
                                  ((0.9 + 1.0) * height / 2.0));
-    vec2_i point1 = point_create(((0.5 + 1.0) * width / 2.0),
+    vec2i point1 = vec2i_new(((0.5 + 1.0) * width / 2.0),
                                  ((-0.5 + 1.0) * height / 2.0));
     draw2d_line(point0, point1, red, image);
     // image.flip_vertically(); // i want to have the origin at the left bottom corner of the image

@@ -71,3 +71,47 @@ float vec3f_len(vec3f a) {
 vec3f vec3f_div(vec3f a, float divisor) {
     return vec3f_mult(a, 1/divisor);
 }
+
+vec2i vec2i_mult(vec2i p, float factor) {
+    return vec2i_new(p.x * factor, p.y * factor);
+}
+
+vec2i vec2i_add(vec2i a, vec2i b) {
+    return vec2i_new(a.x + b.x, a.y + b.y);
+}
+
+vec3f vec3f_add(vec3f a, vec3f b) {
+    return vec3f_new(a.x + b.x, a.y + b.y, a.z + b.z);
+}
+
+vec3f vec3f_add3(vec3f a, vec3f b, vec3f c) {
+    return vec3f_new(a.x + b.x + c.x, a.y + b.y + c.y, a.z + b.z + c.z);
+}
+
+/**
+ * @brief compute barycentric coordinates from Cartesian coordinates.
+ * @ref   https://en.wikipedia.org/wiki/Barycentric_coordinate_system Edge approach 
+ *        from chapter Conversion between barycentric and Cartesian coordinates.
+ * @param p
+ * @param v1
+ * @param v2
+ * @param v3
+ * @return vec3f
+ * @file maths.c
+ * @version 0.1
+ * @author Jelly (wugd827@163.com)
+ * @date 2024-02-07
+ * @copyright Copyright (c) 2024
+ */
+vec3f barycentric(vec2i p, vec2i v1, vec2i v2, vec2i v3) {
+    float lambda1 = (float)((v2.y - v3.y) * (p.x - v3.x) + (v3.x - v2.x) * (p.y - v3.y)) \
+                    / ((v2.y - v3.y) * (v1.x - v3.x) + (v3.x - v2.x) * (v1.y - v3.y));
+    
+    float lambda2 = (float)((v3.y - v1.y) * (p.x - v3.x) + (v1.x - v3.x) * (p.y - v3.y)) \
+                    / ((v2.y - v3.y) * (v1.x - v3.x) + (v3.x - v2.x) * (v1.y - v3.y));
+    
+    float lambda3 = 1 - lambda1 - lambda2;
+    
+    vec3f f = vec3f_new(lambda1, lambda2, lambda3);
+    return f;
+}

@@ -3,15 +3,15 @@
 
 int main(int argc, char **argv)
 {
-    vec2_i* foo = NULL;
+    vec2i* foo = NULL;
     
-    vec2_i t1 = {1, 2};
-    vec2_i t2 = {3, 4};
-    vec2_i t3 = {5, 6};
-    vec2_i t4 = {7, 8};
-    vec2_i t5 = {9, 10};
-    vec2_i t6 = {11, 12};
-    vec2_i t7 = {13, 14};
+    vec2i t1 = {1, 2};
+    vec2i t2 = {3, 4};
+    vec2i t3 = {5, 6};
+    vec2i t4 = {7, 8};
+    vec2i t5 = {9, 10};
+    vec2i t6 = {11, 12};
+    vec2i t7 = {13, 14};
 
     darray_push(foo, t1);
     printf("%d %d %d\n", foo[0].x, foo[0].y, darray_size(foo));

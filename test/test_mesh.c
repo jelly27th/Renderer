@@ -4,10 +4,10 @@
 int main(int argc, char **argv) {
   
   int width = 1000, height = 1000;
-  IMAGE* image = image_init(width, height, 3);
+  image_t* image = image_new(width, height, 3);
   RGB red = {255, 0, 0};
 
-  MESH* mesh = mesh_load("../assets/african_head/african_head.obj");
+  mesh_t* mesh = mesh_load("../assets/african_head/african_head.obj");
   // MESH* mesh = mesh_load("../assets/test/triangle.obj");
 
 

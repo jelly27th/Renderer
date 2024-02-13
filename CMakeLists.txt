@@ -7,17 +7,20 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(HEADER_FILES
     core/image/image.h
     core/maths/maths.h
+    core/texture/texture.h
     core/utils/utils.h
     core/draw2d/draw2d.h
-    core/darray/darray.h
     core/mesh/mesh.h
+    core/darray/darray.h
     core/api.h
     core/common.h
+    core/macro.h
 )
 
 set(SOURCE_FILES
     core/image/image.c
     core/maths/maths.c    
+    core/texture/texture.c
     core/utils/utils.c
     core/draw2d/draw2d.c
     core/mesh/mesh.c

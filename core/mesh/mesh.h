@@ -25,9 +25,9 @@ typedef struct {
     vec3i* vt_indices;
     int vt_indices_size;
 
-}MESH;
+}mesh_t;
 
-MESH* mesh_load(const char* filename);
-void mesh_free(MESH* mesh);
+mesh_t* mesh_load(const char* filename);
+void mesh_free(mesh_t* mesh);
 
 #endif
