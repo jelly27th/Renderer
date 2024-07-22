@@ -37,14 +37,17 @@ static void draw2d_point_utils(int x, int y, unsigned char *color, image_t *imag
 
   // (y * height * channels) + (x * channels);
   int position = get_image_position(image, x, y);
+  int totalPixels = image->width * image->height * image->channels;
+  
+  if (position <= (totalPixels - image->channels) && position > 0) {
+    for (int i = 0; i < image->channels; i++) {
+      image->data[position + i] = color[i];
+    }
 
-  for (int i = 0; i < image->channels; i++) {
-    image->data[position + i] = color[i];
-  }
-
-  // rgb to bgr
-  if (image->channels >= 3) {
-    swap_char((image->data + position), (image->data + position + 2));
+    // rgb to bgr
+    if (image->channels >= 3) {
+      swap_char((image->data + position), (image->data + position + 2));
+    }
   }
 }
 
@@ -66,8 +69,8 @@ static void draw2d_point_utils(int x, int y, unsigned char *color, image_t *imag
 void draw2d_line(vec2i p0, vec2i p1, unsigned char *color, image_t *image) {
 
   // convert point
-  vec2i _p0 = vec2i_new(p0.x - 1, p0.y - 1);
-  vec2i _p1 = vec2i_new(p1.x - 1, p1.y - 1);
+  vec2i _p0 = vec2_new(p0.x - 1, p0.y - 1);
+  vec2i _p1 = vec2_new(p1.x - 1, p1.y - 1);
 
   // draw line
   draw2d_line_utils(_p0, _p1, color, image);
@@ -173,7 +176,7 @@ void draw2d_triangle_raster(vec3f p0, vec3f p1, vec3f p2,
   vec3f _vt1 = convert_texture_point(vt1, texture);
   vec3f _vt2 = convert_texture_point(vt2, texture);
 
-  vec3f depthBuffer = vec3f_new(p0.z, p1.z, p2.z);
+  vec3f depthBuffer = vec3_new(p0.z, p1.z, p2.z);
 
   // draw raster triangles
   draw2d_triangle_raster_utils(_p0, _p1, _p2, _vt0, _vt1, _vt2,
@@ -211,9 +214,9 @@ static void draw2d_triangle_raster_utils(vec2i p0, vec2i p1, vec2i p2,
   bbox AABB_box = find_bounding_box(p0, p1, p2);
 
   // raster triangles
-  for (int _x = AABB_box.min.x; _x < AABB_box.max.x; _x++) {
-    for (int _y = AABB_box.min.y; _y < AABB_box.max.y; _y++) {
-      vec2i p = {_x, _y};
+  for (int x = AABB_box.min.x; x < AABB_box.max.x; x++) {
+    for (int y = AABB_box.min.y; y < AABB_box.max.y; y++) {
+      vec2i p = {x, y};
       vec3f barycoord = barycentric(p, p0, p1, p2);
       // handling accuracy issues. 
       // if `-0.01` is `0`, maybe some point from model will discard in rendering.
@@ -226,10 +229,10 @@ static void draw2d_triangle_raster_utils(vec2i p0, vec2i p1, vec2i p2,
       if (image->depthBuffer[colorPos] < perPixelDepth) {
         
         // interpolate color values from texture coordinates
-        vec3f _texCoord = vec3f_add3(vec3f_mult(vt0, barycoord.x),
-                                     vec3f_mult(vt1, barycoord.y),
-                                     vec3f_mult(vt2, barycoord.z));
-        vec2i texCoord = vec2i_new((int)(_texCoord.x), (int)(_texCoord.y));
+        vec3f _texCoord = vec3_add3(vec3_mult(vt0, barycoord.x),
+                                     vec3_mult(vt1, barycoord.y),
+                                     vec3_mult(vt2, barycoord.z));
+        vec2i texCoord = vec2_new((int)(_texCoord.x), (int)(_texCoord.y));
         get_texture_pixel(texture, color, texCoord);
         calculate_lighting_color(texture, color, intensity);
         image->depthBuffer[colorPos] = perPixelDepth;
@@ -259,7 +262,7 @@ static bbox find_bounding_box(vec2i p0, vec2i p1, vec2i p2) {
   bubble_sort(x, 3);
   bubble_sort(y, 3);
 
-  bbox box = {vec2i_new(x[0], y[0]), vec2i_new(x[2], y[2])};
+  bbox box = {vec2_new(x[0], y[0]), vec2_new(x[2], y[2])};
 
   return box;
 }

@@ -1,3 +1,10 @@
+/******************************************************************************
+ * @file mesh.c
+ * @version 1.0
+ * @author Jelly (wugd827@163.com)
+ * @date 2024-04-13
+ * @copyright Copyright (c) 2024
+******************************************************************************/
 #include "mesh.h"
 
 static mesh_t* obj_load(const char* filename);
@@ -18,6 +25,17 @@ mesh_t* mesh_load(const char* filename) {
     return obj_load(filename);
 }
 
+/******************************************************************************
+ * @brief 
+ * 
+ * @param filename 
+ * @return mesh_t* 
+ * @file mesh.c
+ * @version 1.0
+ * @author Jelly (wugd827@163.com)
+ * @date 2024-04-13
+ * @copyright Copyright (c) 2024
+******************************************************************************/
 static mesh_t* obj_load(const char* filename) {
     
     char line[256]; // buffer size

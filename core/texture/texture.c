@@ -98,6 +98,6 @@ void calculate_lighting_color(texture_t* texture, unsigned char* color, float in
  * @copyright Copyright (c) 2024
  */
 vec3f convert_texture_point(vec3f point, texture_t* texture) {
-  return vec3f_new(mapping_interval(0, 1, 1, texture->width, point.x) - 1,
+  return vec3_new(mapping_interval(0, 1, 1, texture->width, point.x) - 1,
                    mapping_interval(0, 1, 1, texture->width, point.y) - 1, 0.0);
 }

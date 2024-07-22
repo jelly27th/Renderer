@@ -12,6 +12,7 @@ set(HEADER_FILES
     core/draw2d/draw2d.h
     core/mesh/mesh.h
     core/darray/darray.h
+    core/win32/win32.h
     core/api.h
     core/common.h
     core/macro.h
@@ -24,8 +25,9 @@ set(SOURCE_FILES
     core/utils/utils.c
     core/draw2d/draw2d.c
     core/mesh/mesh.c
+    core/win32/win32.c
 )
 
-set(SRC_CUR test/test_triangle.c)
+set(SRC_CUR test/test_mesh.c)
 add_executable(Renderer ${HEADER_FILES} ${SRC_CUR}  
                           ${SOURCE_FILES})

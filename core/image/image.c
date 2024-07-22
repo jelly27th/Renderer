@@ -36,7 +36,10 @@ image_t *image_new(int width, int height, int channels) {
   // Init image color buffer(z-buffer)
   int depthBufferSize = sizeof(float) * width * height;
   image->depthBuffer = (float *)malloc(depthBufferSize);
-  memset(image->depthBuffer, Negative_Infinity, depthBufferSize);
+  // memset(image->depthBuffer, Negative_Infinity, depthBufferSize);
+  for (int i = 0; i < (width * height); i++) {
+    image->depthBuffer[i] = Negative_Infinity;
+  }
 
   return image;
 }
@@ -56,8 +59,8 @@ image_t *image_new(int width, int height, int channels) {
  */
 int get_image_position(image_t *image, int x, int y) {
 
-    // position = (y * height * channels) + (x * channels)
-    return (y * image->height * image->channels) + (x * image->channels);
+    // position = (y * width * channels) + (x * channels)
+    return (y * image->width * image->channels) + (x * image->channels);
 }
 
 /**
@@ -258,6 +261,6 @@ static void load_rle_image(FILE* file, image_t* image) {
  * @copyright Copyright (c) 2024
  */
 vec2i convert_vertex_point(vec3f point, image_t *image) {
-  return vec2i_new(mapping_interval(-1, 1, 1, image->width, point.x) - 1,
+  return vec2_new(mapping_interval(-1, 1, 1, image->width, point.x) - 1,
                    mapping_interval(-1, 1, 1, image->width, point.y) - 1);
 }
