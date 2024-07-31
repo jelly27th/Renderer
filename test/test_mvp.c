@@ -4,7 +4,7 @@
 int main(int argc, char **argv) {
   
   int width = 800, height = 800;
-  int ndc_width = -20, ndc_height = 20;
+  int ndc_width = -1, ndc_height = 1;
   float aspect = 1;
   image_t* image = image_new(width, height, 3);
   RGB red = {255, 0, 0};
@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
       // printf("project:"); vec4_print(p_v0);
       fputs(project, opf); vec4_fprint(opf, p_v0);
 
-      vec3f ndc_v0 = vec4_2_vec3(p_v0);
+      vec3f ndc_v0 = vec4_2_vec3(p_v0, p_v0.w);
       printf("final:"); vec3_print(ndc_v0);
       fputs(final, opf); vec3_fprint(opf, ndc_v0);
 

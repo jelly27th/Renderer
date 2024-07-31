@@ -37,7 +37,7 @@ void vec3_print(vec3f p);
 void vec3_fprint(FILE* opf, vec3f p);
 
 vec4f vec4_new(float x, float y, float z, float w);
-vec3f vec4_2_vec3(vec4f a);
+vec3f vec4_2_vec3(vec4f a, float w);
 void vec4_print(vec4f p);
 void vec4_fprint(FILE* opf, vec4f p);
 
@@ -54,7 +54,9 @@ mat4f mat4_rotate_x(float angle);
 mat4f mat4_rotate_y(float angle);
 mat4f mat4_rotate_z(float angle);
 mat4f mat4_look_at(vec3f eye, vec3f target, vec3f up);
+mat4f mat4_viewport(float width, float height);
 
 vec3f barycentric(vec2i p, vec2i v0, vec2i v1, vec2i v2);
+vec3f perspective_correct_interp(vec3f v[3], vec3f weight, vec3f w);
 
 #endif

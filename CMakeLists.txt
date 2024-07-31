@@ -28,6 +28,6 @@ set(SOURCE_FILES
     core/win32/win32.c
 )
 
-set(SRC_CUR test/test_mesh.c)
+set(SRC_CUR test/test_triangle.c)
 add_executable(Renderer ${HEADER_FILES} ${SRC_CUR}  
                           ${SOURCE_FILES})

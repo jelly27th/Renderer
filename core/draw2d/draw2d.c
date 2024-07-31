@@ -3,8 +3,7 @@
 static void swap_point(vec2i *p0, vec2i *p1);
 static void draw2d_point_utils(int x, int y, unsigned char *color, image_t *image);
 static void draw2d_line_utils(vec2i p0, vec2i p1, unsigned char *color, image_t *image);
-static void draw2d_triangle_raster_utils(vec2i p0, vec2i p1, vec2i p2,
-                                         vec3f vt0, vec3f vt1, vec3f vt2,
+static void draw2d_triangle_raster_utils(vec3f v[3], vec3f vt[3],
                                          texture_t *texture, image_t *image,
                                          vec3f depthBuffer, unsigned char *color, float intensity);
 typedef struct {vec2i min, max;} bbox;
@@ -147,12 +146,8 @@ static void swap_point(vec2i *p0, vec2i *p1) {
 /**
  * @brief convert point coordinates and draw raster triangles to image.
  *
- * @param p0 `p0`, `p1` and `p2` are the vertices coordinates.
- * @param p1
- * @param p2
- * @param vt0 `vt0`, `vt1` and `vt2` are the texture coordinates.
- * @param vt1
- * @param vt2
+ * @param v[3] vertices coordinates after mvp transform.
+ * @param vt[3] texture coordinates.
  * @param texture
  * @param image
  * @param color RGB、RGBA、black-white、black-white-alpha.
@@ -163,25 +158,34 @@ static void swap_point(vec2i *p0, vec2i *p1) {
  * @date 2024-02-13
  * @copyright Copyright (c) 2024
  */
-void draw2d_triangle_raster(vec3f p0, vec3f p1, vec3f p2,
-                            vec3f vt0, vec3f vt1, vec3f vt2,
+void draw2d_triangle_raster(vec4f v[3], vec3f vt[3],
                             texture_t* texture, image_t *image,
                             unsigned char *color, float intensity) {
-  // convert point
-  vec2i _p0 = convert_vertex_point(p0, image);
-  vec2i _p1 = convert_vertex_point(p1, image);
-  vec2i _p2 = convert_vertex_point(p2, image);
+  // convert ndc point
+  vec3f ndc_v[3];
+  for (int i = 0; i < 3; i++) {
+    ndc_v[i] = vec4_2_vec3(v[i], v[i].w);
+  }
+  
+  // w value in homogeneous coordinates
+  vec3f W = vec3_new(v[0].w, v[1].w, v[2].w);
 
-  vec3f _vt0 = convert_texture_point(vt0, texture);
-  vec3f _vt1 = convert_texture_point(vt1, texture);
-  vec3f _vt2 = convert_texture_point(vt2, texture);
+  // convert screen point and store z-buffer value
+  vec3f screen_v[3];
+  mat4f viewport = mat4_viewport(image->width, image->height);
+  for (int i = 0; i < 3; i++) {
+    vec4f tmp= mat4_mult_vec4(viewport, vec3_2_vec4(ndc_v[i], 1));
+    screen_v[i] = vec3_div(vec4_2_vec3(tmp, 1), 1);
+  }
 
-  vec3f depthBuffer = vec3_new(p0.z, p1.z, p2.z);
+  vec3f _vt[3];
+  for (int i = 0; i < 3; i++) {
+      _vt[i] = convert_texture_point(vt[i], texture);
+  }
 
   // draw raster triangles
-  draw2d_triangle_raster_utils(_p0, _p1, _p2, _vt0, _vt1, _vt2,
-                               texture, image, 
-                               depthBuffer, color, intensity);
+  draw2d_triangle_raster_utils(screen_v, _vt, texture, image, 
+                               W, color, intensity);
 }
 
 
@@ -189,12 +193,8 @@ void draw2d_triangle_raster(vec3f p0, vec3f p1, vec3f p2,
  * @brief draw raster triangles to image.
  * @ref   https://github.com/ssloy/tinyrenderer/wiki/Lesson-2:-Triangle-rasterization-and-back-face-culling
  *        https://zhuanlan.zhihu.com/p/523501661
- * @param p0 `p0`, `p1` and `p2` are the vertices coordinates.
- * @param p1
- * @param p2
- * @param vt0 `vt0`, `vt1` and `vt2` are the texture coordinates.
- * @param vt1
- * @param vt2
+ * @param _v[3]  vertices coordinates.
+ * @param vt[3] texture coordinates.
  * @param texture
  * @param image
  * @param depthBuffer z-buffer value from three vertex coordinates.
@@ -206,18 +206,24 @@ void draw2d_triangle_raster(vec3f p0, vec3f p1, vec3f p2,
  * @date 2024-02-13
  * @copyright Copyright (c) 2024
  */
-static void draw2d_triangle_raster_utils(vec2i p0, vec2i p1, vec2i p2,
-                                         vec3f vt0, vec3f vt1, vec3f vt2,
+static void draw2d_triangle_raster_utils(vec3f _v[3], vec3f uv[3],
                                          texture_t *texture, image_t *image,
-                                         vec3f depthBuffer, unsigned char *color, float intensity) {
+                                         vec3f W, unsigned char *color, float intensity) {
+
+  vec2i v[3];
+  for (int i = 0; i < 3; i++) {
+    v[i] = vec2_new(_v[i].x, _v[i].y);
+  }
+  vec3f depthBuffer = vec3_new(_v[0].z, _v[1].z, _v[2].z);
+
   // find bounding box AABB（Axis-Aligned Bounding Boxes)
-  bbox AABB_box = find_bounding_box(p0, p1, p2);
+  bbox AABB_box = find_bounding_box(v[0], v[1], v[2]);
 
   // raster triangles
   for (int x = AABB_box.min.x; x < AABB_box.max.x; x++) {
     for (int y = AABB_box.min.y; y < AABB_box.max.y; y++) {
       vec2i p = {x, y};
-      vec3f barycoord = barycentric(p, p0, p1, p2);
+      vec3f barycoord = barycentric(p, v[0], v[1], v[2]);
       // handling accuracy issues. 
       // if `-0.01` is `0`, maybe some point from model will discard in rendering.
       if (barycoord.x < -0.01 || barycoord.y < -0.01 || barycoord.z < -0.01) {
@@ -228,14 +234,15 @@ static void draw2d_triangle_raster_utils(vec2i p0, vec2i p1, vec2i p2,
       int colorPos = get_depthBuffer_postion(p, image);
       if (image->depthBuffer[colorPos] < perPixelDepth) {
         
+        image->depthBuffer[colorPos] = perPixelDepth;
+
         // interpolate color values from texture coordinates
-        vec3f _texCoord = vec3_add3(vec3_mult(vt0, barycoord.x),
-                                     vec3_mult(vt1, barycoord.y),
-                                     vec3_mult(vt2, barycoord.z));
+        vec3f _texCoord = perspective_correct_interp(uv, barycoord, W);
         vec2i texCoord = vec2_new((int)(_texCoord.x), (int)(_texCoord.y));
         get_texture_pixel(texture, color, texCoord);
+
         calculate_lighting_color(texture, color, intensity);
-        image->depthBuffer[colorPos] = perPixelDepth;
+
         draw2d_point_utils(p.x, p.y, color, image);
       }
     }

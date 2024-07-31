@@ -60,7 +60,7 @@ float vec3_dot(vec3f a, vec3f b) {
 
 /* 
     -> ->   -> 
-    a - b = ab 
+    a - b = ba 
 */
 vec3f vec3_sub(vec3f a, vec3f b) {
     float x = a.x - b.x;
@@ -128,6 +128,38 @@ vec3f barycentric(vec2i p, vec2i v1, vec2i v2, vec2i v3) {
     
     vec3f f = vec3_new(lambda1, lambda2, lambda3);
     return f;
+}
+
+/******************************************************************************
+ * @brief The interpolation formula for perspective correction is as follows:
+ *        I =  ((α/Z1)*I1 + (β/Z2)*I2+ (γ/Z3)*I3)*Zt
+ *        and Zt = 1/(α/Z1 + β/Z2+ γ/Z3).
+ *        I1、I2、I3 are the attributes values, Z1、Z2、Z3 are original z value
+ *        in model file, α、β、γ are barycentric value.
+ * 
+ * @ref https://www.comp.nus.edu.sg/~lowkl/publications/lowk_persp_interp_techrep.pdf
+ * @param v 
+ * @param weight 
+ * @param w 
+ * @return vec3f 
+ * @file maths.c
+ * @version 1.0
+ * @author Jelly (wugd827@163.com)
+ * @date 2024-07-30
+ * @copyright Copyright (c) 2024
+******************************************************************************/
+vec3f perspective_correct_interp(vec3f v[3], vec3f weight, vec3f w) {
+    vec3f recip_w = vec3_new(1/w.x, 1/w.y, 1/w.z);
+    float alpha = weight.x * recip_w.x;
+    float beta  = weight.y * recip_w.y;
+    float gamma = weight.z * recip_w.z;
+    float Zt = 1 / (alpha + beta + gamma);
+    vec3f _It = vec3_add3(vec3_mult(v[0] ,alpha),
+                         vec3_mult(v[1] ,beta), 
+                         vec3_mult(v[2] ,gamma));
+    vec3f It = vec3_mult(_It, Zt);
+
+    return It;
 }
 
 mat4f mat4_identity() {
@@ -271,14 +303,8 @@ vec4f vec3_2_vec4(vec3f a, float w) {
     return vec4_new(a.x, a.y, a.z, w);
 }
 
-vec3f vec4_2_vec3(vec4f a) {
-    vec3f v;
-    if (a.w != 0) {
-        v = vec3_new(a.x/a.w, a.y/a.w, a.z/a.w);
-    } else {
-        v = vec3_new(a.x, a.y, a.z);
-    }
-    return v;
+vec3f vec4_2_vec3(vec4f a, float w) {
+    return vec3_new(a.x/w, a.y/w, a.z/w);
 }
 
 /**
@@ -490,6 +516,34 @@ mat4f mat4_look_at(vec3f eye, vec3f target, vec3f up) {
     m.m[0][3] = -vec3_dot(x_axis, eye);
     m.m[1][3] = -vec3_dot(y_axis, eye);
     m.m[2][3] = -vec3_dot(z_axis, eye);
+
+    return m;
+}
+
+
+/******************************************************************************
+ * @brief view transformation matrix as follows:
+ *         width/2       0        0        width/2
+ *            0       height/2    0        height/2
+ *            0           0       1           0
+ *            0           0       0           1 
+ * 
+ * @ref https://www.cnblogs.com/Gr-blogs/p/17741819.html#%E8%A7%86%E5%8F%A3%E5%8F%98%E6%8D%A2
+ * @param width 
+ * @param height 
+ * @return mat4f 
+ * @file maths.c
+ * @version 1.0
+ * @author Jelly (wugd827@163.com)
+ * @date 2024-07-29
+ * @copyright Copyright (c) 2024
+******************************************************************************/
+mat4f mat4_viewport(float width, float height) {
+    mat4f m = mat4_identity();
+    m.m[0][0] = width / 2;
+    m.m[0][3] = width / 2;
+    m.m[1][3] = height / 2;
+    m.m[1][1] = height / 2;
 
     return m;
 }
