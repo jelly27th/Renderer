@@ -21,6 +21,7 @@ vec2i vec2_mult(vec2i p, float factor);
 vec2i vec2_add(vec2i a, vec2i b);
 void vec2_print(vec2i p);
 void vec2_fprint(FILE* opf, vec2i p);
+vec2i vec3_2_vec2(vec3f a);
 
 vec3f vec3_new(float x, float y, float z);
 vec3f vec3_cross(vec3f a, vec3f b);
@@ -58,5 +59,6 @@ mat4f mat4_viewport(float width, float height);
 
 vec3f barycentric(vec2i p, vec2i v0, vec2i v1, vec2i v2);
 vec3f perspective_correct_interp(vec3f v[3], vec3f weight, vec3f w);
+void perspective_correct_interp2(void* src[3], void* _dst, int dstSize, vec3f weight, vec3f w);
 
 #endif

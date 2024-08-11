@@ -9,5 +9,6 @@
 #include "mesh/mesh.h"
 #include "texture/texture.h"
 #include "win32/win32.h"
+#include "graphics/graphics.h"
 
 #endif

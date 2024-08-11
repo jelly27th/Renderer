@@ -13,9 +13,14 @@ set(HEADER_FILES
     core/mesh/mesh.h
     core/darray/darray.h
     core/win32/win32.h
+    core/model/model.h
+    core/graphics/graphics.h
+    shader/flat/flat_shader.h
+    shader/gouraud/gouraud_shader.h
     core/api.h
     core/common.h
     core/macro.h
+    shader/shader.h
 )
 
 set(SOURCE_FILES
@@ -26,8 +31,12 @@ set(SOURCE_FILES
     core/draw2d/draw2d.c
     core/mesh/mesh.c
     core/win32/win32.c
+    core/model/model.c
+    core/graphics/graphics.c
+    shader/flat/flat_shader.c
+    shader/gouraud/gouraud_shader.c
 )
 
-set(SRC_CUR test/test_triangle.c)
+set(SRC_CUR test/test_gouraud.c)
 add_executable(Renderer ${HEADER_FILES} ${SRC_CUR}  
                           ${SOURCE_FILES})

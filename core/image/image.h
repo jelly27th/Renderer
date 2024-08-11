@@ -13,6 +13,7 @@ typedef struct {
 
 typedef unsigned char RGBA[4];
 typedef unsigned char RGB[3];
+typedef unsigned char* color_t;
 
 // main function
 image_t* image_new(int width, int height, int channels);

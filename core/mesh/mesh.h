@@ -7,24 +7,14 @@
 #include "../utils/utils.h"
 
 typedef struct {
-    vec3f* v;
-    int v_size;
+  vec4f vertex[3]; 
+  vec3f uv[3];
+  vec3f normal[3];
+}triangle_t;
 
-    vec3f* vt;
-    int vt_size;
-    
-    vec3f* vn;
-    int vn_size;
-    
-    vec3i* v_indices;
-    int v_indices_size;
-
-    vec3i* vn_indices;
-    int vn_indices_size;
-    
-    vec3i* vt_indices;
-    int vt_indices_size;
-
+typedef struct {
+    int triangles_Number;
+    triangle_t* triangles;
 }mesh_t;
 
 mesh_t* mesh_load(const char* filename);

@@ -36,12 +36,11 @@ vec3f vec3_new(float x, float y, float z) {
     return v;
 }
 
-/*
-                  |                    
+/*                               
                  /|\ ->  
                   |  C
                   |                   ->              
-                  |________________\_ b
+                  |________________\  b
                  /  ->             /
                 /   a
               \/_
@@ -160,6 +159,25 @@ vec3f perspective_correct_interp(vec3f v[3], vec3f weight, vec3f w) {
     vec3f It = vec3_mult(_It, Zt);
 
     return It;
+}
+
+void perspective_correct_interp2(void* src[3], void* _dst, int dstSize, vec3f weight, vec3f w) {
+
+    float* src0 = (float*)src[0];
+    float* src1 = (float*)src[1];
+    float* src2 = (float*)src[2];
+    float* dst = (float*)_dst;
+    int num = dstSize / sizeof(float);
+
+    vec3f recip_w = vec3_new(1/w.x, 1/w.y, 1/w.z);
+    float alpha = weight.x * recip_w.x;
+    float beta  = weight.y * recip_w.y;
+    float gamma = weight.z * recip_w.z;
+    float Zt = 1 / (alpha + beta + gamma);
+    
+    for (int i = 0; i < num; i++) {
+        dst[i] = (src0[i]*alpha + src1[i]*beta + src2[i]*gamma)*Zt;
+    }
 }
 
 mat4f mat4_identity() {
@@ -447,7 +465,7 @@ mat4f mat4_rotate_z(float angle) {
 }
 
 void vec2_print(vec2i p) {
-    printf("vec2i: (%f, %f)\n", p.x, p.y);
+    printf("vec2i: (%f, %f)\n", (float)p.x, (float)p.y);
 }
 
 void vec3_print(vec3f p) {
@@ -470,6 +488,9 @@ void vec4_fprint(FILE* opf, vec4f p) {
     fprintf(opf, "vec4f: (%f, %f, %f, %f)\n", p.x, p.y, p.z, p.w);
 }
 
+vec2i vec3_2_vec2(vec3f a) {
+    return vec2_new((int)a.x, (int)a.y);
+}
 /******************************************************************************
  * @brief camera is defined in the right-hand coordinate system, 
  *        and camera is always looking at the -z axis. thus 

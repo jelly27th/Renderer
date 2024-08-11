@@ -158,7 +158,7 @@ static void swap_point(vec2i *p0, vec2i *p1) {
  * @date 2024-02-13
  * @copyright Copyright (c) 2024
  */
-void draw2d_triangle_raster(vec4f v[3], vec3f vt[3],
+void draw2d_triangle_raster(vec4f v[3], vec3f uv[3],
                             texture_t* texture, image_t *image,
                             unsigned char *color, float intensity) {
   // convert ndc point
@@ -178,13 +178,8 @@ void draw2d_triangle_raster(vec4f v[3], vec3f vt[3],
     screen_v[i] = vec3_div(vec4_2_vec3(tmp, 1), 1);
   }
 
-  vec3f _vt[3];
-  for (int i = 0; i < 3; i++) {
-      _vt[i] = convert_texture_point(vt[i], texture);
-  }
-
   // draw raster triangles
-  draw2d_triangle_raster_utils(screen_v, _vt, texture, image, 
+  draw2d_triangle_raster_utils(screen_v, uv, texture, image, 
                                W, color, intensity);
 }
 
@@ -194,7 +189,7 @@ void draw2d_triangle_raster(vec4f v[3], vec3f vt[3],
  * @ref   https://github.com/ssloy/tinyrenderer/wiki/Lesson-2:-Triangle-rasterization-and-back-face-culling
  *        https://zhuanlan.zhihu.com/p/523501661
  * @param _v[3]  vertices coordinates.
- * @param vt[3] texture coordinates.
+ * @param uv[3] texture coordinates.
  * @param texture
  * @param image
  * @param depthBuffer z-buffer value from three vertex coordinates.
@@ -223,12 +218,14 @@ static void draw2d_triangle_raster_utils(vec3f _v[3], vec3f uv[3],
   for (int x = AABB_box.min.x; x < AABB_box.max.x; x++) {
     for (int y = AABB_box.min.y; y < AABB_box.max.y; y++) {
       vec2i p = {x, y};
+
       vec3f barycoord = barycentric(p, v[0], v[1], v[2]);
       // handling accuracy issues. 
       // if `-0.01` is `0`, maybe some point from model will discard in rendering.
       if (barycoord.x < -0.01 || barycoord.y < -0.01 || barycoord.z < -0.01) {
         continue; 
       }
+      
       // calculate z-buffer values
       float perPixelDepth = get_zbuffer_value(depthBuffer, barycoord);
       int colorPos = get_depthBuffer_postion(p, image);
@@ -238,7 +235,7 @@ static void draw2d_triangle_raster_utils(vec3f _v[3], vec3f uv[3],
 
         // interpolate color values from texture coordinates
         vec3f _texCoord = perspective_correct_interp(uv, barycoord, W);
-        vec2i texCoord = vec2_new((int)(_texCoord.x), (int)(_texCoord.y));
+        vec2i texCoord = vec3_2_vec2(convert_texture_point(_texCoord, texture));
         get_texture_pixel(texture, color, texCoord);
 
         calculate_lighting_color(texture, color, intensity);

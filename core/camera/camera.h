@@ -2,7 +2,7 @@
 #define WIN32_H
 
 #include "../common.h"
-#include "../api.h"
+#include "../maths/maths.h"
 
 typedef struct {
     vec3f eye;
